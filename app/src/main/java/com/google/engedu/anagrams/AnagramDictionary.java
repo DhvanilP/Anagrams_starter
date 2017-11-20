@@ -38,24 +38,16 @@ public class AnagramDictionary {
     private static final int MAX_WORD_LENGTH = 7;
     private Random random = new Random();
     private ArrayList<String> wordList = new ArrayList<String>();
-    private HashSet<String> wordSet = new HashSet<String>();
-    private Hashtable<String, ArrayList<String>> lettersToWords = new Hashtable<>();
+
 
     public AnagramDictionary(Reader reader) throws IOException {
         BufferedReader in = new BufferedReader(reader);
         String line;
         while ((line = in.readLine()) != null) {
             String word = line.trim();
-            wordSet.add(AnagramDictionary.sortLetters(word));
-            if (lettersToWords.containsKey(AnagramDictionary.sortLetters(word))) {
-                ArrayList<String> dummy = new ArrayList<String>();
-                dummy.add(word);
-                lettersToWords.put(AnagramDictionary.sortLetters(word), dummy);
-            } else {
-                lettersToWords.get(AnagramDictionary.sortLetters(word)).add(word);
-            }
+            wordList.add(word);
         }
-        Log.e("aa","bbbbbb");
+
     }
 
     public boolean isGoodWord(String word, String base) {
@@ -63,9 +55,14 @@ public class AnagramDictionary {
     }
 
     public List<String> getAnagrams(String targetWord) {
-        ArrayList<String> result=new ArrayList<>();
-        String sortedTarget = AnagramDictionary.sortLetters(targetWord);
-        return lettersToWords.get(sortedTarget);
+        List<String> answer = new ArrayList<>();
+        for (int i = 0; i < wordList.size(); i++) {
+            if (wordList.get(i).length() == targetWord.length()) {
+                if (sortLetters(wordList.get(i)).equals(sortLetters(targetWord)))
+                    answer.add(wordList.get(i));
+            }
+        }
+        return answer;
     }
 
     public List<String> getAnagramsWithOneMoreLetter(String word) {
