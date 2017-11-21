@@ -26,6 +26,7 @@ import java.lang.reflect.Array;
 import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -38,6 +39,8 @@ public class AnagramDictionary {
     private static final int MAX_WORD_LENGTH = 7;
     private Random random = new Random();
     private ArrayList<String> wordList = new ArrayList<String>();
+    private HashSet<String> wordSet = new HashSet<>();
+    private HashMap<String, ArrayList<String>> letterToWords = new HashMap<String, ArrayList<String>>();
 
 
     public AnagramDictionary(Reader reader) throws IOException {
@@ -45,9 +48,11 @@ public class AnagramDictionary {
         String line;
         while ((line = in.readLine()) != null) {
             String word = line.trim();
-            wordList.add(word);
+            if (letterToWords.get(sortLetters(word)) == null) {
+                letterToWords.put(sortLetters(word), new ArrayList<String>());
+            }
+            letterToWords.get(sortLetters(word)).add(word);
         }
-
     }
 
     public boolean isGoodWord(String word, String base) {
@@ -55,14 +60,13 @@ public class AnagramDictionary {
     }
 
     public List<String> getAnagrams(String targetWord) {
-        List<String> answer = new ArrayList<>();
-        for (int i = 0; i < wordList.size(); i++) {
-            if (wordList.get(i).length() == targetWord.length()) {
-                if (sortLetters(wordList.get(i)).equals(sortLetters(targetWord)))
-                    answer.add(wordList.get(i));
-            }
-        }
-        return answer;
+//        for (int i = 0; i < wordList.size(); i++) {
+//            if (wordList.get(i).length() == targetWord.length()) {
+//                if (sortLetters(wordList.get(i)).equals(sortLetters(targetWord)))
+//                    answer.add(wordList.get(i));
+//            }
+//        }
+        return letterToWords.get(sortLetters(targetWord));
     }
 
     public List<String> getAnagramsWithOneMoreLetter(String word) {
