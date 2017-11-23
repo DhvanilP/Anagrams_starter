@@ -15,20 +15,15 @@
 
 package com.google.engedu.anagrams;
 
-import android.renderscript.Sampler;
 import android.util.Log;
 
 import java.io.BufferedReader;
-import java.io.Console;
 import java.io.IOException;
 import java.io.Reader;
-import java.lang.reflect.Array;
-import java.security.Key;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
 import java.util.Random;
 
@@ -40,6 +35,7 @@ public class AnagramDictionary {
     private Random random = new Random();
     private ArrayList<String> wordList = new ArrayList<String>();
     private HashSet<String> wordSet = new HashSet<>();
+    private HashSet<String> wordSetWithMin = new HashSet<>();
     private HashMap<String, ArrayList<String>> letterToWords = new HashMap<String, ArrayList<String>>();
 
 
@@ -48,34 +44,63 @@ public class AnagramDictionary {
         String line;
         while ((line = in.readLine()) != null) {
             String word = line.trim();
+            wordSet.add(sortLetters(word));
             if (letterToWords.get(sortLetters(word)) == null) {
                 letterToWords.put(sortLetters(word), new ArrayList<String>());
             }
             letterToWords.get(sortLetters(word)).add(word);
         }
+        for (String str : wordSet) {
+            if (letterToWords.get(str).size() >= MIN_NUM_ANAGRAMS) {
+                wordSetWithMin.add(str);
+            }
+        }
     }
 
     public boolean isGoodWord(String word, String base) {
-        return true;
+        //here the word must be a valid dictionary word and base must not be
+        //present in it as a substring
+        if (word.contains(base))
+            return false;
+        if (wordSet.contains(sortLetters(word))) {
+            if (letterToWords.get(sortLetters(word)).contains(word))
+                return true;
+        }
+        return false;
     }
 
     public List<String> getAnagrams(String targetWord) {
-//        for (int i = 0; i < wordList.size(); i++) {
-//            if (wordList.get(i).length() == targetWord.length()) {
-//                if (sortLetters(wordList.get(i)).equals(sortLetters(targetWord)))
-//                    answer.add(wordList.get(i));
-//            }
-//        }
         return letterToWords.get(sortLetters(targetWord));
     }
 
     public List<String> getAnagramsWithOneMoreLetter(String word) {
         ArrayList<String> result = new ArrayList<String>();
+        for (int i = 0; i < 26; i++) {
+            String temp = word + ((char) ('a' + i));
+            Log.d("Here", temp);
+            String sortTemp = sortLetters(temp);
+            if (wordSet.contains(sortTemp)) {
+                for (int j = 0; j < letterToWords.get(sortTemp).size(); j++)
+
+                    if (!letterToWords.get(sortTemp).get(j).contains(word)) {
+                        result.add(letterToWords.get(sortTemp).get(j));
+                    }
+            }
+        }
         return result;
     }
 
     public String pickGoodStarterWord() {
-        return "skate";
+        Random random = new Random();
+        int a = random.nextInt(wordSetWithMin.size());
+        int i = 0;
+        for (String str : wordSetWithMin) {
+            if (i == a) {
+                return str;
+            }
+            i++;
+        }
+        return letterToWords.get("badge").get(0);
     }
 
     private static String sortLetters(String word) {
